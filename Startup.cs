@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
 using WebApp.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.OpenApi.Models;
 
 namespace WebApp
 {
@@ -28,10 +29,20 @@ namespace WebApp
                 opts.UseSqlServer(Configuration["ConnectionStrings:ProductConnection"]);
                 opts.EnableSensitiveDataLogging(true);
             });
-            services.AddControllers();
-            services.Configure<JsonOptions>(opts =>
+            services.AddControllers().AddNewtonsoftJson().AddXmlSerializerFormatters();
+            services.Configure<MvcNewtonsoftJsonOptions>(opts =>
             {
-                opts.JsonSerializerOptions.IgnoreNullValues = true;
+                opts.SerializerSettings.NullValueHandling
+                = Newtonsoft.Json.NullValueHandling.Ignore;
+            });
+            services.Configure<MvcOptions>(opts =>
+            {
+                opts.RespectBrowserAcceptHeader = true;
+                opts.ReturnHttpNotAcceptable = true;
+            });
+            services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApp", Version = "v1" });
             });
         }
         public void Configure(IApplicationBuilder app, DataContext context)
@@ -47,6 +58,11 @@ namespace WebApp
                 });
                 //endpoints.MapWebService();
                 endpoints.MapControllers();
+            });
+            app.UseSwagger();
+            app.UseSwaggerUI(options =>
+            {
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "WebApp");
             });
             SeedData.SeedDatabase(context);
         }
