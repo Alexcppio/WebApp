@@ -6,15 +6,6 @@
 </head>
 <body>
     <div class="m-2">
-        <h6 class="bg-primary text-white m-2 p-2">
-            Uncached timestamp: @DateTime.Now.ToLongTimeString()
-        </h6>
-        <cache expires-sliding="@TimeSpan.FromSeconds(10)"
-               vary-by-route="action">
-            <h6 class="bg-primary text-white m-2 p-2">
-                Uncached timestamp: @DateTime.Now.ToLongTimeString()
-            </h6>
-        </cache>
         @RenderBody()
     </div>
 </body>
