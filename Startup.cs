@@ -3,6 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
 using WebApp.Models;
+using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Http;
 
 namespace WebApp
 {
@@ -23,12 +25,26 @@ namespace WebApp
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
             services.AddRazorPages().AddRazorRuntimeCompilation();
             services.AddSingleton<CitiesData>();
+            services.Configure<AntiforgeryOptions>(opts =>
+            {
+                opts.HeaderName = "X-XSRF-TOKEN";
+            });
         }
-        public void Configure(IApplicationBuilder app, DataContext context)
+        public void Configure(IApplicationBuilder app, DataContext context, IAntiforgery antiforgery)
         {
             app.UseDeveloperExceptionPage();
             app.UseStaticFiles();
             app.UseRouting();
+            app.Use(async (context, next) =>
+            {
+                if (!context.Request.Path.StartsWithSegments("/api"))
+                {
+                    context.Response.Cookies.Append("XSRF-TOKEN",
+                        antiforgery.GetAndStoreTokens(context).RequestToken,
+                        new CookieOptions { HttpOnly = false });
+                }
+                await next();
+            });
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
