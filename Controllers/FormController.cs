@@ -15,25 +15,35 @@ namespace WebApp.Controllers
         {
             context = dbContext;
         }
-        public async Task<IActionResult> Index(long id = 1)
+        public async Task<IActionResult> Index([FromQuery] long? id)
         {
             ViewBag.Categories
                 = new SelectList(context.Categories, "CategoryId", "Name");
             return View("Form", await context.Products.Include(p => p.Category)
-                .Include(p => p.Supplier).FirstAsync(p => p.ProductId == id));
+                .Include(p => p.Supplier)
+                .FirstOrDefaultAsync(p => id == null || p.ProductId == id));
         }
         [HttpPost]
-        public IActionResult SubmitForm()
+        public IActionResult SubmitForm([Bind("Name", "Category")] Product product)
         {
-            foreach(string key in Request.Form.Keys)
-            {
-                TempData[key] = string.Join(", ", Request.Form[key]);
-            }
+            TempData["name"] = product.Name;
+            TempData["price"] = product.Price.ToString();
+            TempData["category name"] = product.Category.Name;
             return RedirectToAction(nameof(Results));
         }
         public IActionResult Results()
         {
             return View(TempData);
+        }
+        public string Header([FromHeader (Name = "Accept-Language")] string accept)
+        {
+            return $"Header: {accept}";
+        }
+        [HttpPost]
+        [IgnoreAntiforgeryToken]
+        public Product Body([FromBody] Product model)
+        {
+            return model;
         }
     }
 }

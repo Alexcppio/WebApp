@@ -1,0 +1,50 @@
+﻿@page "/pages/bindings"
+@model BindingsModel
+@using Microsoft.AspNetCore.Mvc
+@using Microsoft.AspNetCore.Mvc.RazorPages
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col">
+            <form asp-page="Bindings" method="post">
+                <div class="form-group">
+                    <label>Value #1</label>
+                    <input class="form-control" name="Data[first]" value="Item 1" />
+                </div>
+                <div class="form-group">
+                    <label>Value #2</label>
+                    <input class="form-control" name="Data[second]" value="Item 2" />
+                </div>
+                <div class="form-group">
+                    <label>Value #3</label>
+                    <input class="form-control" name="Data[third]" value="Item 3" />
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <a class="btn btn-secondary" asp-page="Bindings">Reset</a>
+            </form>
+        </div>
+        <div class="col">
+            <table class="table table-sm table-striped">
+                <tbody>
+                    @foreach(string key in Model.Data.Keys)
+                    {
+                        <tr>
+                            <th>@key</th><td>@Model.Data[key]</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@functions
+{
+    public class BindingsModel : PageModel
+    {
+        //[BindProperty(Name = "Data")]
+        [FromQuery(Name = "Data")]
+        public Dictionary<string, string> Data { get; set; }
+            = new Dictionary<string, string>();
+    }
+}
