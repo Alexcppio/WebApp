@@ -7,10 +7,12 @@ namespace WebApp.Models
     public class Product
     {
         public long ProductId { get; set; }
+        [Required]
+        [Display(Name = "Name")]
         public string Name { get; set; }
         [Column(TypeName = "decimal(8, 2)")]
-        //[DisplayFormat(DataFormatString = "{0:c2}", ApplyFormatInEditMode = true)]
-        [BindNever]
+        [Required(ErrorMessage = "Please enter a price")]
+        [Range(1, 999999, ErrorMessage = "Please enter a positive price")]
         public decimal Price { get; set; }
         public long CategoryId { get; set; }
         public Category Category { get; set; }
