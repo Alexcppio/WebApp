@@ -56,47 +56,13 @@
         }
         [BindProperty]
         public Product Product { get; set; }
-        //[BindProperty(Name = "Product.Category")]
-        //public Category Category { get; set; }
         public async Task OnGetAsync(long id = 1)
         {
             Product = await context.Products.FirstAsync(p => p.ProductId == id);
         }
+
         public IActionResult OnPost()
         {
-            if(string.IsNullOrEmpty(Product.Name))
-            {
-                ModelState.AddModelError("Product.Name", "Enter a name");
-            }
-
-            if(ModelState.GetValidationState("Product.Price")
-                == ModelValidationState.Valid && Product.Price < 1)
-            {
-                ModelState.AddModelError("Product.Price", "Enter a positive price");
-            }
-
-            if(ModelState.GetValidationState("Product.Name")
-                == ModelValidationState.Valid
-                && ModelState.GetValidationState("Product.Price")
-                == ModelValidationState.Valid
-                && Product.Name.ToLower().StartsWith("small")
-                && Product.Price > 100)
-            {
-                ModelState.AddModelError("", "Small products cannot cost more than $100");
-            }
-
-            if(!context.Categories.Any(c => c.CategoryId == Product.CategoryId))
-            {
-                ModelState.AddModelError("Product.CategoryId",
-                    "Enter an existing category ID");
-            }
-
-            if(!context.Suppliers.Any(s => s.SupplierId == Product.SupplierId))
-            {
-                ModelState.AddModelError("Product.SupplierId",
-                    "Enter an existing supplier ID");
-            }
-
             if(ModelState.IsValid)
             {
                 TempData["name"] = Product.Name;
